@@ -1,19 +1,56 @@
+% This file will run a fast pns and forbidden resonances check and print a
+% png file. If the asc file from the scanner is not found, the pns check is
+% skipped.  
+
+% USAGE:
+% Include the pulseq-master path with subfolders in your matlab path
+% Run the safety check as: safety_check('my_sequence.seq')
+% If you have the asc file, place it in the same folder as this file and
+% change the name below to match that of your file.
+
+
+% Milena Capiglioni, University of Bern 2025.
+
 function safety_check(seq_file)
+
     % Gradient system file (must be in the same folder)
     gradFile = 'MP_GPA_K2309_2250V_951A_AS82.asc';
     
-    f = figure();%("Position",[680   558   990   420]); %Adjust accordingly if needed
+    f = figure('Color','w');%("Position",[680   558   990   420]); %Adjust accordingly if needed
     t = tiledlayout(1,2);
 
     % Load sequence
     seq = mr.Sequence();
     seq.read(seq_file);
 
+    % read hash and save it
+    fileText = fileread(seq_file);
+    hashStr = '';
+    sigIdx  = strfind(fileText,'[SIGNATURE]');
+    if ~isempty(sigIdx)
+        % Extract everything after [SIGNATURE]
+        tailText = fileText(sigIdx:end);
+        % Look for the line starting with 'Hash '
+        hashLine = regexp(tailText,'(?m)^Hash\s+([0-9a-fA-F]+)','tokens','once');
+        if ~isempty(hashLine)
+            hashStr = hashLine{1};
+        end
+    end
+
     % PNS check
     check_PNS(seq, gradFile,t);
 
     % Acoustic resonance check
     check_acoustic_resonances(seq, gradFile,t);
+
+    % Add a global title with the hash (if found)
+    if ~isempty(hashStr)
+        title(t, sprintf('Hash: %s', hashStr), ...
+            'FontWeight','bold','Interpreter','none');
+    else
+        title(t, 'Hash: (not found)', ...
+            'FontWeight','bold','Interpreter','none');
+    end
 
     [~,name] = fileparts(seq_file);
     saveas(f,[name '_safety_check.png']);
