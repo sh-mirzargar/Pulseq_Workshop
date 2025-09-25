@@ -110,7 +110,7 @@ function check_acoustic_resonances(seq, gradFile,t,scanner)
         acoustic_resonances = DEFAULT_ACOUSTIC_RESONANCES;
     end
 
-    [spectrograms, spectrogram_rss, frequencies] = calculate_gradient_spectrum(seq, acoustic_resonances, true, 10, 0.5, 2000, 'max', [], false);
+    [spectrograms, spectrogram_rss, frequencies] = calculate_gradient_spectrum(seq, acoustic_resonances, false, 10, 0.02, 2000, 'max', [], false);
     
     nexttile(t);
     hold all;
