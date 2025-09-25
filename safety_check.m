@@ -9,9 +9,7 @@
 % change the name below to match that of your file.
 
 
-% Milena Capiglioni, University of Bern 2025.
-
-function safety_check(seq_file)
+function safety_check(seq_file,scanner)
 
     % Gradient system file (must be in the same folder)
     gradFile = 'MP_GPA_K2309_2250V_951A_AS82.asc';
@@ -41,7 +39,7 @@ function safety_check(seq_file)
     check_PNS(seq, gradFile,t);
 
     % Acoustic resonance check
-    check_acoustic_resonances(seq, gradFile,t);
+    check_acoustic_resonances(seq, gradFile, t, scanner);
 
     % Add a global title with the hash (if found)
     if ~isempty(hashStr)
@@ -81,12 +79,19 @@ function check_PNS(seq, gradFile,t)
     end
 end
 
-function check_acoustic_resonances(seq, gradFile,t)
+function check_acoustic_resonances(seq, gradFile,t,scanner)
 
-    DEFAULT_ACOUSTIC_RESONANCES = [ ...
-        struct('frequency', 590,  'bandwidth', 100); ...
-        struct('frequency', 1140, 'bandwidth', 220) ...
-    ];
+    if strcmp(scanner,'3T')
+        DEFAULT_ACOUSTIC_RESONANCES = [ ...
+            struct('frequency', 590,  'bandwidth', 100); ...
+            struct('frequency', 1140, 'bandwidth', 220) ...
+        ];
+    elseif strcmp(scanner,'7T')
+        DEFAULT_ACOUSTIC_RESONANCES = [ ...
+            struct('frequency', 1100,  'bandwidth', 300); ...
+            struct('frequency', 550, 'bandwidth', 100) ...
+        ];
+    end
 
     if exist(gradFile, 'file')
         asc = mr.Siemens.readasc(gradFile);
