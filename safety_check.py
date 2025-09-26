@@ -48,7 +48,7 @@ def check_PNS(seq, gradFile, seq_file):
     # Extract MD5 hash for the title
     md5_hash = extract_md5_hash(seq_file)
 
-    pns_ok, pns_n, pns_c, tpns = seq.calculate_pns(gradient_file, do_plots=False)
+    pns_ok, pns_n, pns_c, tpns = seq.calculate_pns(gradient_file, do_plots=True)
 
     # Add title with MD5 hash
     plt.suptitle(f"PNS Check - Hash: {md5_hash}", fontsize=14, fontweight='bold')
@@ -106,13 +106,13 @@ def check_acoustic_resonances(seq, gradFile, seq_file, scanner):
     seq.calculate_gradient_spectrum(acoustic_resonances=acoustic_resonances, use_derivative=False, frequency_oversampling=10, window_width=(min(0.02,seq.duration()[0])))
 
     # Add title with MD5 hash
-    #plt.suptitle(f"Acoustic Resonances - Hash: {md5_hash}", fontsize=14, fontweight='bold')
+    plt.suptitle(f"Acoustic Resonances - Hash: {md5_hash}", fontsize=14, fontweight='bold')
 
     # Save the plot as PNG
-    #output_filename = f"acoustic_resonances_{os.path.basename(seq_file).replace('.seq', '')}.png"
-    #plt.savefig(output_filename, dpi=300, bbox_inches='tight')
-    #print(f"Acoustic resonances plot saved as: {output_filename}")
-    #plt.show()
+    output_filename = f"acoustic_resonances_{os.path.basename(seq_file).replace('.seq', '')}.png"
+    plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+    print(f"Acoustic resonances plot saved as: {output_filename}")
+    plt.show()
 
 def safety_check(seq_file, scanner='3T'):
     """
