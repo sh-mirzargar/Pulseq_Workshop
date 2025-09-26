@@ -14,25 +14,6 @@ DEFAULT_ACOUSTIC_RESONANCES_7T = [ # For our Siemens 3T Prisma
     {"frequency": 1100, "bandwidth": 300}
 ]
 
-def extract_md5_hash(seq_file):
-    """
-    Extract the MD5 hash from the last line of the .seq file
-    """
-    try:
-        with open(seq_file, 'r') as f:
-            lines = f.readlines()
-            # Look for the hash in the last few lines
-            for line in reversed(lines):
-                line = line.strip()
-                if line.startswith("Hash "):
-                    # Extract the hash part after "Hash "
-                    hash_value = line[5:]  # Remove "Hash " prefix
-                    return hash_value
-        return "Hash not found"
-    except Exception as e:
-        print(f"Error reading seq file for hash: {e}")
-        return "Hash extraction failed"
-
 def check_PNS(seq, gradFile, seq_file):
     """
     Plots the PNS level of the sequence using the gradient information in gradFile and throws an error if PNS level is exceeded
@@ -45,13 +26,10 @@ def check_PNS(seq, gradFile, seq_file):
         print(f"Warning: Gradient file '{gradFile}' not found. Skipping PNS check.")
         return
 
-    # Extract MD5 hash for the title
-    md5_hash = extract_md5_hash(seq_file)
-
     pns_ok, pns_n, pns_c, tpns = seq.calculate_pns(gradient_file, do_plots=True)
 
     # Add title with MD5 hash
-    plt.suptitle(f"PNS Check - Hash: {md5_hash}", fontsize=14, fontweight='bold')
+    plt.suptitle(f"PNS Check - Hash: {seq.signature_value}", fontsize=14, fontweight='bold')
 
     # Save the plot as PNG
     output_filename = f"pns_check_{os.path.basename(seq_file).replace('.seq', '')}.png"
@@ -100,13 +78,10 @@ def check_acoustic_resonances(seq, gradFile, seq_file, scanner):
             raise ValueError("Unknown scanner type. Please specify '3T' or '7T'.")
         print(f"Warning: Gradient file '{gradFile}' not found. Using default acoustic resonances.")
 
-    # Extract MD5 hash for the title
-    md5_hash = extract_md5_hash(seq_file)
-
     seq.calculate_gradient_spectrum(acoustic_resonances=acoustic_resonances, use_derivative=False, frequency_oversampling=10, window_width=(min(0.02,seq.duration()[0])))
 
     # Add title with MD5 hash
-    plt.suptitle(f"Acoustic Resonances - Hash: {md5_hash}", fontsize=14, fontweight='bold')
+    plt.suptitle(f"Acoustic Resonances - Hash: {seq.signature_value}", fontsize=14, fontweight='bold')
 
     # Save the plot as PNG
     output_filename = f"acoustic_resonances_{os.path.basename(seq_file).replace('.seq', '')}.png"
