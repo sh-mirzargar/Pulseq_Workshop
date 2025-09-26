@@ -21,20 +21,6 @@ function safety_check(seq_file,scanner)
     seq = mr.Sequence();
     seq.read(seq_file);
 
-    % read hash and save it
-    fileText = fileread(seq_file);
-    hashStr = '';
-    sigIdx  = strfind(fileText,'[SIGNATURE]');
-    if ~isempty(sigIdx)
-        % Extract everything after [SIGNATURE]
-        tailText = fileText(sigIdx:end);
-        % Look for the line starting with 'Hash '
-        hashLine = regexp(tailText,'(?m)^Hash\s+([0-9a-fA-F]+)','tokens','once');
-        if ~isempty(hashLine)
-            hashStr = hashLine{1};
-        end
-    end
-
     % PNS check
     check_PNS(seq, gradFile,t);
 
@@ -42,13 +28,9 @@ function safety_check(seq_file,scanner)
     check_acoustic_resonances(seq, gradFile, t, scanner);
 
     % Add a global title with the hash (if found)
-    if ~isempty(hashStr)
-        title(t, sprintf('Hash: %s', hashStr), ...
-            'FontWeight','bold','Interpreter','none');
-    else
-        title(t, 'Hash: (not found)', ...
-            'FontWeight','bold','Interpreter','none');
-    end
+    title(t, sprintf('Hash: %s', seq.signatureValue), ...
+        'FontWeight','bold','Interpreter','none');
+
 
     [~,name] = fileparts(seq_file);
     saveas(f,[name '_safety_check.png']);
